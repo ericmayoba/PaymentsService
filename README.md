@@ -39,13 +39,19 @@ db/
 
    > La base `Payments` debe existir antes de correr el script, o créala con `CREATE DATABASE Payments;`.
 
-3. Ejecutar la API:
+3. Aplicar migraciones:
+
+```bash
+   dotnet ef database update --project src/PaymentsService.Infrastructure --startup-project src/PaymentsService.Api
+```
+
+4. Ejecutar la API:
 
    ```bash
    dotnet run --project src/PaymentsService.Api
    ```
 
-4. Ejecutar las pruebas:
+5. Ejecutar las pruebas:
 
    ```bash
    dotnet test
@@ -71,6 +77,7 @@ Usa el `access_token` devuelto en el header `Authorization: Bearer <token>`.
 | POST | `/v1/wallets` | Sí | Crea una billetera |
 | GET | `/v1/wallets/{id}` | Sí | Consulta una billetera |
 | POST | `/v1/transfers` | Sí | Transfiere saldo entre billeteras |
+| POST | `/v1/transfers/{id}/reversal` | Sí | Revierte una transferencia existente
 | GET | `/v1/wallets/{id}/movements` | No | Historial de movimientos |
 
 ### Ejemplos
@@ -88,3 +95,24 @@ Transferir:
 POST /v1/transfers
 { "fromWalletId": 1, "toWalletId": 2, "amount": 25.5 }
 ```
+Revertir una transferencia:
+
+```json
+POST /v1/transfers/1/reversal
+```
+
+Errores posibles en la reversa:
+
+| Codigo | Descripcion |
+|--------|-------------|
+| 404 | Movimiento o billetera no encontrada |
+| 409 | La transferencia ya fue revertida |
+| 422 | Saldo insuficiente para revertir |
+| 400 | Solo se pueden revertir movimientos de débito |
+
+## Cambios recientes
+
+- `Balance` y `Amount` cambiados de `double` a `decimal` en toda la solucion para garantizar precision en operaciones monetarias.
+- Nuevo campo `ReversedMovementId` en `Movement` para control de reversas.
+- Nuevo endpoint `POST /v1/transfers/{id}/reversal` para revertir transferencias.
+- Nuevos metodos `GetByIdAsync` y `UpdateAsync` en `IMovementRepository`.
