@@ -11,6 +11,7 @@ public class PaymentsDbContext : DbContext
 
     public DbSet<Wallet> Wallets => Set<Wallet>();
     public DbSet<Movement> Movements => Set<Movement>();
+    public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +30,12 @@ public class PaymentsDbContext : DbContext
             e.HasKey(m => m.Id);
             e.Property(m => m.Amount).HasColumnType("decimal(19,4)");
             e.Property(m => m.Type).HasConversion<string>().HasMaxLength(10);
+        });
+
+        modelBuilder.Entity<IdempotencyKey>(e =>
+        {
+            e.ToTable("IdempotencyKeys");
+            e.HasKey(k => k.Key);
         });
     }
 }

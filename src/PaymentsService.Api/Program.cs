@@ -21,6 +21,7 @@ builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IMovementRepository, MovementRepository>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<TransferService>();
+builder.Services.AddScoped<IIdempotencyRepository, IdempotencyRepository>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -73,9 +74,20 @@ app.MapGet("/v1/wallets/{id:int}", async (int id, WalletService service) =>
     return wallet is null ? Results.NotFound() : Results.Ok(wallet);
 }).RequireAuthorization();
 
-app.MapPost("/v1/transfers", async (TransferRequest req, TransferService service) =>
+app.MapPost("/v1/transfers", async (
+    HttpContext http,
+    TransferRequest req,
+    TransferService service) =>
 {
-    var result = await service.TransferAsync(req.FromWalletId, req.ToWalletId, req.Amount);
+    // Read the header
+    if (!http.Request.Headers.TryGetValue("Idempotency-Key", out var keyValue)
+        || !Guid.TryParse(keyValue, out var idempotencyKey))
+{
+        return Results.BadRequest(new { error = "Idempotency-Key header is required (UUID format)" });
+    }
+
+    // Pass the idempotencyKey as the last argument
+    var result = await service.TransferAsync(req.FromWalletId, req.ToWalletId, req.Amount, idempotencyKey);
     return result.Success ? Results.Ok() : Results.BadRequest(new { error = result.Error });
 }).RequireAuthorization();
 
