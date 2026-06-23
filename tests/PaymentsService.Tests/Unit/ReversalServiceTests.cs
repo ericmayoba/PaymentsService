@@ -9,7 +9,6 @@ public class ReversalServiceTests
     [Fact]
     public async Task ReverseAsync_ShouldRestoreBalances()
     {
-        // Arrange
         var fromWallet = new Wallet { Id = 1, Balance = 90.0m };
         var toWallet = new Wallet { Id = 2, Balance = 60.0m };
 
@@ -25,8 +24,8 @@ public class ReversalServiceTests
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal(100.0m, fromWallet.Balance);  // restaurado
-        Assert.Equal(50.0m, toWallet.Balance);    // restaurado
+        Assert.Equal(100.0m, fromWallet.Balance); 
+        Assert.Equal(50.0m, toWallet.Balance); 
     }
 
     [Fact]
@@ -36,7 +35,7 @@ public class ReversalServiceTests
         var debitMovement = new Movement(1, 10.0m, MovementType.Debit)
         {
             Id = 1,
-            ReversedMovementId = 1  // ya fue revertido
+            ReversedMovementId = 1
         };
 
         var walletRepo = new FakeWalletRepository();

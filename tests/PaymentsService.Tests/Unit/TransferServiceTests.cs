@@ -33,7 +33,7 @@ public class TransferServiceTests
         // Act — 3 transfers of 0.1
         var key = Guid.NewGuid();
         await service.TransferAsync(1, 2, 0.1m, key);
-        await service.TransferAsync(1, 2, 0.1m, Guid.NewGuid()); // key diferente cada vez
+        await service.TransferAsync(1, 2, 0.1m, Guid.NewGuid());
         await service.TransferAsync(1, 2, 0.1m,Guid.NewGuid());
 
         // Assert
