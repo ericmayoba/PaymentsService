@@ -12,7 +12,7 @@ public class WalletService
         _wallets = wallets;
     }
 
-    public async Task<Wallet> CreateAsync(string documentId, string name, double initialBalance)
+    public async Task<Wallet> CreateAsync(string documentId, string name, decimal initialBalance)
     {
         var wallet = new Wallet
         {
