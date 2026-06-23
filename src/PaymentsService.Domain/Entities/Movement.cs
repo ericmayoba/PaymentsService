@@ -6,7 +6,7 @@ public class Movement
 {
     public int Id { get; set; }
     public int WalletId { get; set; }
-    public double Amount { get; set; }
+    public decimal Amount { get; set; }
     public MovementType Type { get; set; }
     public DateTime CreatedAt { get; set; }
 
@@ -14,7 +14,7 @@ public class Movement
     {
     }
 
-    public Movement(int walletId, double amount, MovementType type)
+    public Movement(int walletId, decimal amount, MovementType type)
     {
         WalletId = walletId;
         Amount = amount;

@@ -90,6 +90,6 @@ app.Run();
 
 public record TokenRequest(string Username);
 public record CreateWalletRequest(string DocumentId, string Name, double InitialBalance);
-public record TransferRequest(int FromWalletId, int ToWalletId, double Amount);
+public record TransferRequest(int FromWalletId, int ToWalletId, decimal Amount);
 
 public partial class Program;

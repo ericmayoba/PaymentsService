@@ -15,7 +15,7 @@ public class TransferService
         _movements = movements;
     }
 
-    public async Task<TransferResult> TransferAsync(int fromWalletId, int toWalletId, double amount)
+    public async Task<TransferResult> TransferAsync(int fromWalletId, int toWalletId, decimal amount)
     {
         var from = await _wallets.GetByIdAsync(fromWalletId);
         var to = await _wallets.GetByIdAsync(toWalletId);
