@@ -22,6 +22,7 @@ builder.Services.AddScoped<IMovementRepository, MovementRepository>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<TransferService>();
 builder.Services.AddScoped<IIdempotencyRepository, IdempotencyRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -82,13 +83,14 @@ app.MapPost("/v1/transfers", async (
     // Read the header
     if (!http.Request.Headers.TryGetValue("Idempotency-Key", out var keyValue)
         || !Guid.TryParse(keyValue, out var idempotencyKey))
-{
+    {
         return Results.BadRequest(new { error = "Idempotency-Key header is required (UUID format)" });
     }
 
     // Pass the idempotencyKey as the last argument
     var result = await service.TransferAsync(req.FromWalletId, req.ToWalletId, req.Amount, idempotencyKey);
     return result.Success ? Results.Ok() : Results.BadRequest(new { error = result.Error });
+
 }).RequireAuthorization();
 
 // Public endpoint: movement history does not require authentication.

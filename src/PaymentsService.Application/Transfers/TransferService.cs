@@ -17,9 +17,10 @@ public class TransferService
         _wallets = wallets;
         _movements = movements;
         _idempotency = idempotency;
+        _uow = uow;
     }
 
-    public async Task<TransferResult> TransferAsync(int fromWalletId, int toWalletId, decimal amount)
+    public async Task<TransferResult> TransferAsync(int fromWalletId, int toWalletId, decimal amount, Guid idempotencyKey)
     {
         if (await _idempotency.ExistsAsync(idempotencyKey))
             return TransferResult.Ok();
@@ -30,16 +31,27 @@ public class TransferService
         if (from is null || to is null)
             return TransferResult.Fail("Wallet not found");
 
-        from.Balance = from.Balance - amount;
-        to.Balance = to.Balance + amount;
+        await _uow.BeginTransactionAsync();
+        try
+        {
+            from.Balance -= amount;
+            to.Balance += amount;
 
-        await _wallets.UpdateAsync(from);
-        await _wallets.UpdateAsync(to);
+            await _wallets.UpdateAsync(from);
+            await _wallets.UpdateAsync(to);
 
-        await _movements.AddAsync(new Movement(fromWalletId, amount, MovementType.Debit));
-        await _movements.AddAsync(new Movement(toWalletId, amount, MovementType.Credit));
+            await _movements.AddAsync(new Movement(fromWalletId, amount, MovementType.Debit));
+            await _movements.AddAsync(new Movement(toWalletId, amount, MovementType.Credit));
 
             await _idempotency.SaveAsync(idempotencyKey);
-        return TransferResult.Ok();
+            await _uow.CommitAsync();
+
+            return TransferResult.Ok();
+        }
+        catch
+        {
+            await _uow.RollbackAsync(); 
+            throw;
+        }
     }
 }
