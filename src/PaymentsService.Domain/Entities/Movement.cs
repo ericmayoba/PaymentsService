@@ -9,16 +9,18 @@ public class Movement
     public decimal Amount { get; set; }
     public MovementType Type { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int? ReversedMovementId { get; set; }
 
     public Movement()
     {
     }
 
-    public Movement(int walletId, decimal amount, MovementType type)
+    public Movement(int walletId, decimal amount, MovementType type, int? reversedMovementId = null)
     {
         WalletId = walletId;
         Amount = amount;
         Type = type;
         CreatedAt = DateTime.UtcNow;
+        ReversedMovementId = reversedMovementId;
     }
 }

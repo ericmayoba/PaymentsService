@@ -28,7 +28,7 @@ public class TransferServiceTests
             .ReturnsAsync(false);
 
         var uow = new Mock<IUnitOfWork>();
-        var service = new TransferService(walletRepo.Object, movementRepo.Object, idempotencyRepo.Object, uow);
+        var service = new TransferService(walletRepo.Object, movementRepo.Object, idempotencyRepo.Object, uow.Object);
 
         // Act — 3 transfers of 0.1
         var key = Guid.NewGuid();

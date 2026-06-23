@@ -23,6 +23,7 @@ builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<TransferService>();
 builder.Services.AddScoped<IIdempotencyRepository, IdempotencyRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ReversalService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -99,6 +100,24 @@ app.MapGet("/v1/wallets/{id:int}/movements", async (int id, IMovementRepository 
     var list = await movements.GetByWalletIdAsync(id);
     return Results.Ok(list);
 });
+
+app.MapPost("/v1/transfers/{id:int}/reversal", async (int id, ReversalService service) =>
+{
+    var result = await service.ReverseAsync(id);
+
+    return result.Success
+        ? Results.Ok()
+        : result.Error switch
+        {
+            "Movement not found" => Results.NotFound(new { error = result.Error }),       // 404
+            "Origin wallet not found" => Results.NotFound(new { error = result.Error }),       // 404
+            "Destination wallet not found" => Results.NotFound(new { error = result.Error }),  // 404
+            "Movement already reversed" => Results.Conflict(new { error = result.Error }),  // 409
+            "Insufficient balance to reverse" => Results.UnprocessableEntity(new { error = result.Error }), // 422
+            _ => Results.BadRequest(new { error = result.Error })                              // 400
+        };
+
+}).RequireAuthorization();
 
 app.Run();
 

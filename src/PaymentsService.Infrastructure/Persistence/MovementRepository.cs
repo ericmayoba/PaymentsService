@@ -24,4 +24,13 @@ public class MovementRepository : IMovementRepository
             .Where(m => m.WalletId == walletId)
             .OrderByDescending(m => m.CreatedAt)
             .ToListAsync();
+
+    public async Task<Movement?> GetByIdAsync(int id) =>
+    await _db.Movements.FirstOrDefaultAsync(m => m.Id == id);
+
+    public async Task UpdateAsync(Movement movement)
+    {
+        _db.Movements.Update(movement);
+        await _db.SaveChangesAsync();
+    }
 }
