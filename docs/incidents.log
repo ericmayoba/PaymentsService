@@ -1,0 +1,6 @@
+[10:02:11] WARN  payments-api   p95 latency on /wallets/{id}/movements = 4200ms (threshold 800ms)
+[10:03:40] ERROR payments-api   Unhandled: SqlException timeout expired (connection pool exhausted)
+[10:05:55] ERROR auth-service   JWT signature validation failed for 312 requests in 60s
+[10:07:02] INFO  payments-api   Deploy v2.14.0 completed
+[10:09:18] CRIT  payments-db    Transaction log for database 'Payments' is full; writes failing
+[10:11:44] WARN  notifications  Email provider returning 429 (rate limited), retrying with backoff
